@@ -13,6 +13,8 @@ export interface Repository {
   description?: string;
   html_url: string;
   is_fork: boolean;
+  is_private: boolean;
+  is_own_repo: boolean;
   stargazers_count: number;
   open_issues_count: number;
   open_prs_count: number;

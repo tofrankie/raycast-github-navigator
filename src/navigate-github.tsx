@@ -24,10 +24,12 @@ const REPO_FIELDS = `
   description
   url
   isFork
+  isPrivate
   stargazerCount
   forkCount
   issues(states: OPEN) { totalCount }
   pullRequests(states: OPEN) { totalCount }
+  owner { login }
 `;
 
 const USER_REPOS_QUERY = `query($cursor: String) {
@@ -50,13 +52,15 @@ const ORG_REPOS_QUERY = `query($org: String!, $cursor: String) {
 
 const ORGS_QUERY = `query {
   viewer {
+    login
     organizations(first: 100) {
       nodes { login }
     }
   }
 }`;
 
-function toRepo(node: Record<string, unknown>): Repository {
+function toRepo(node: Record<string, unknown>, viewerLogin: string): Repository {
+  const ownerLogin = (node.owner as { login: string }).login;
   return {
     id: String(node.databaseId),
     name: node.name as string,
@@ -64,6 +68,8 @@ function toRepo(node: Record<string, unknown>): Repository {
     description: (node.description as string) || '',
     html_url: node.url as string,
     is_fork: node.isFork as boolean,
+    is_private: node.isPrivate as boolean,
+    is_own_repo: Boolean(viewerLogin && ownerLogin === viewerLogin),
     stargazers_count: node.stargazerCount as number,
     open_issues_count: (node.issues as { totalCount: number }).totalCount,
     open_prs_count: (node.pullRequests as { totalCount: number }).totalCount,
@@ -86,9 +92,13 @@ async function fetchAllRepos(token: string): Promise<Repository[]> {
   const seen = new Set<string>();
   const allRepos: Repository[] = [];
 
+  const orgsData = await graphql(token, ORGS_QUERY);
+  const viewerLogin: string = orgsData.viewer.login ?? '';
+  const orgs: string[] = orgsData.viewer.organizations.nodes.map((n: { login: string }) => n.login);
+
   function addRepos(nodes: Record<string, unknown>[]) {
     for (const node of nodes) {
-      const repo = toRepo(node);
+      const repo = toRepo(node, viewerLogin);
       if (!seen.has(repo.full_name)) {
         seen.add(repo.full_name);
         allRepos.push(repo);
@@ -106,10 +116,7 @@ async function fetchAllRepos(token: string): Promise<Repository[]> {
     cursor = pageInfo.endCursor;
   }
 
-  // Fetch orgs, then all repos per org
-  const orgsData = await graphql(token, ORGS_QUERY);
-  const orgs: string[] = orgsData.viewer.organizations.nodes.map((n: { login: string }) => n.login);
-
+  // All repos per org
   for (const org of orgs) {
     cursor = null;
     while (true) {
@@ -139,11 +146,12 @@ export default function Command() {
         return (
           <List.Item
             key={repo.full_name}
-            title={repo.full_name}
+            title={repo.is_own_repo ? repo.name : repo.full_name}
             subtitle={repo.description}
-            keywords={[repo.name]}
+            keywords={[repo.name, repo.full_name]}
             accessories={[
               ...(repo.is_fork ? [{ tag: 'fork' }] : []),
+              ...(repo.is_private ? [{ tag: 'private' }] : []),
               ...(showIssuesPRs ? [{ tag: `${repo.open_issues_count}/${repo.open_prs_count}` }] : []),
               ...(showStars ? [{ tag: `${repo.stargazers_count} ★` }] : []),
             ]}

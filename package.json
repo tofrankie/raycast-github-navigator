@@ -5,6 +5,7 @@
   "description": "Navigate your GitHub projects",
   "icon": "icon.png",
   "author": "webpro",
+  "type": "module",
   "categories": [
     "Developer Tools"
   ],
