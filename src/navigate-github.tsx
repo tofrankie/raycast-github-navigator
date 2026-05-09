@@ -8,12 +8,12 @@ const getActions = (repo: Repository) => {
   const base = repo.html_url;
   return [
     { title: 'Open Repository', url: base },
-    { title: 'Issues', url: join(base, "issues") },
-    { title: 'Pull requests', url: join(base, "pulls") },
-    { title: 'Actions', url: join(base, "actions") },
-    { title: 'Releases', url: join(base, "releases") },
-    { title: 'Settings', url: join(base, "settings") },
-    { title: 'Dependents', url: join(base, "network", "dependents") },
+    { title: 'Issues', url: join(base, 'issues') },
+    { title: 'Pull requests', url: join(base, 'pulls') },
+    { title: 'Actions', url: join(base, 'actions') },
+    { title: 'Releases', url: join(base, 'releases') },
+    { title: 'Settings', url: join(base, 'settings') },
+    { title: 'Dependents', url: join(base, 'network', 'dependents') },
   ];
 };
 
@@ -171,4 +171,3 @@ export default function Command() {
     </List>
   );
 }
-
