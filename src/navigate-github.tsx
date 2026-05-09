@@ -23,6 +23,7 @@ const REPO_FIELDS = `
   nameWithOwner
   description
   url
+  isFork
   stargazerCount
   forkCount
   issues(states: OPEN) { totalCount }
@@ -62,6 +63,7 @@ function toRepo(node: Record<string, unknown>): Repository {
     full_name: node.nameWithOwner as string,
     description: (node.description as string) || '',
     html_url: node.url as string,
+    is_fork: node.isFork as boolean,
     stargazers_count: node.stargazerCount as number,
     open_issues_count: (node.issues as { totalCount: number }).totalCount,
     open_prs_count: (node.pullRequests as { totalCount: number }).totalCount,
@@ -141,6 +143,7 @@ export default function Command() {
             subtitle={repo.description}
             keywords={[repo.name]}
             accessories={[
+              ...(repo.is_fork ? [{ tag: 'fork' }] : []),
               ...(showIssuesPRs ? [{ tag: `${repo.open_issues_count}/${repo.open_prs_count}` }] : []),
               ...(showStars ? [{ tag: `${repo.stargazers_count} ★` }] : []),
             ]}

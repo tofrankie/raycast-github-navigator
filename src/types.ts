@@ -12,6 +12,7 @@ export interface Repository {
   full_name: string;
   description?: string;
   html_url: string;
+  is_fork: boolean;
   stargazers_count: number;
   open_issues_count: number;
   open_prs_count: number;
