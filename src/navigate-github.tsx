@@ -1,4 +1,4 @@
-import { ActionPanel, Action, List, getPreferenceValues, closeMainWindow, open } from '@raycast/api';
+import { ActionPanel, Action, List, getPreferenceValues, closeMainWindow, open, Icon } from '@raycast/api';
 import { useCachedPromise, useFrecencySorting } from '@raycast/utils';
 import { openInBrowserTab } from 'open-in-browser-tab';
 import { sortRepos } from './repos';
@@ -7,13 +7,13 @@ import { join } from 'node:path';
 const getActions = (repo: Repository) => {
   const base = repo.html_url;
   return [
-    { title: 'Open Repository', url: base },
-    { title: 'Issues', url: join(base, 'issues') },
-    { title: 'Pull requests', url: join(base, 'pulls') },
-    { title: 'Actions', url: join(base, 'actions') },
-    { title: 'Releases', url: join(base, 'releases') },
-    { title: 'Settings', url: join(base, 'settings') },
-    { title: 'Dependents', url: join(base, 'network', 'dependents') },
+    { title: 'Open Repository', url: base, icon: Icon.Globe },
+    { title: 'Issues', url: join(base, 'issues'), icon: Icon.Bug },
+    { title: 'Pull requests', url: join(base, 'pulls'), icon: Icon.ArrowNe },
+    { title: 'Actions', url: join(base, 'actions'), icon: Icon.Bolt },
+    { title: 'Releases', url: join(base, 'releases'), icon: Icon.Tag },
+    { title: 'Settings', url: join(base, 'settings'), icon: Icon.Gear },
+    { title: 'Dependents', url: join(base, 'network', 'dependents'), icon: Icon.Network },
   ];
 };
 
@@ -162,6 +162,7 @@ export default function Command() {
                     <Action
                       key={action.title}
                       title={action.title}
+                      icon={action.icon}
                       shortcut={{
                         modifiers: ['cmd'],
                         key: String(index + 1),
@@ -174,6 +175,12 @@ export default function Command() {
                     />
                   );
                 })}
+                <Action.CopyToClipboard
+                  title="Copy Repo URL"
+                  content={repo.html_url}
+                  icon={Icon.Link}
+                  shortcut={{ modifiers: ['cmd'], key: 'c' }}
+                />
               </ActionPanel>
             }
           />
