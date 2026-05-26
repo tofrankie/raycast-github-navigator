@@ -4,14 +4,19 @@ import { openInBrowserTab } from 'open-in-browser-tab';
 import { sortRepos } from './repos';
 import type { Preferences, Repository } from './types';
 import { join } from 'node:path';
+
 const getActions = (repo: Repository) => {
   const base = repo.html_url;
   return [
     { title: 'Open Repository', url: base, icon: Icon.Globe },
+    ...(repo.is_fork && repo.parent_full_name
+      ? [{ title: 'Open Upstream Repository', url: `https://github.com/${repo.parent_full_name}`, icon: Icon.Globe }]
+      : []),
     { title: 'Issues', url: join(base, 'issues'), icon: Icon.Bug },
     { title: 'Pull requests', url: join(base, 'pulls'), icon: Icon.ArrowNe },
     { title: 'Actions', url: join(base, 'actions'), icon: Icon.Bolt },
     { title: 'Releases', url: join(base, 'releases'), icon: Icon.Tag },
+    { title: 'Insights', url: join(base, 'pulse'), icon: Icon.LineChart },
     { title: 'Settings', url: join(base, 'settings'), icon: Icon.Gear },
     { title: 'Dependents', url: join(base, 'network', 'dependents'), icon: Icon.Network },
   ];
@@ -30,6 +35,7 @@ const REPO_FIELDS = `
   issues(states: OPEN) { totalCount }
   pullRequests(states: OPEN) { totalCount }
   owner { login }
+  parent { nameWithOwner }
 `;
 
 const USER_REPOS_QUERY = `query($cursor: String) {
@@ -61,6 +67,7 @@ const ORGS_QUERY = `query {
 
 function toRepo(node: Record<string, unknown>, viewerLogin: string): Repository {
   const ownerLogin = (node.owner as { login: string }).login;
+  const parentFullName = (node.parent as { nameWithOwner?: string } | null)?.nameWithOwner;
   return {
     id: String(node.databaseId),
     name: node.name as string,
@@ -68,6 +75,7 @@ function toRepo(node: Record<string, unknown>, viewerLogin: string): Repository 
     description: (node.description as string) || '',
     html_url: node.url as string,
     is_fork: node.isFork as boolean,
+    parent_full_name: parentFullName ?? undefined,
     is_private: node.isPrivate as boolean,
     is_own_repo: Boolean(viewerLogin && ownerLogin === viewerLogin),
     stargazers_count: node.stargazerCount as number,
@@ -146,14 +154,24 @@ export default function Command() {
         return (
           <List.Item
             key={repo.full_name}
+            icon={{ source: 'icons/repo.svg', tintColor: '#59636e' }}
             title={repo.is_own_repo ? repo.name : repo.full_name}
             subtitle={repo.description}
             keywords={[repo.name, repo.full_name]}
             accessories={[
-              ...(repo.is_fork ? [{ tag: 'fork' }] : []),
-              ...(repo.is_private ? [{ tag: 'private' }] : []),
-              ...(showIssuesPRs ? [{ tag: `${repo.open_issues_count}/${repo.open_prs_count}` }] : []),
-              ...(showStars ? [{ tag: `${repo.stargazers_count} ★` }] : []),
+              ...(repo.is_fork
+                ? [{ tag: 'fork', tooltip: `Forked from ${repo.parent_full_name ?? 'unknown upstream'}` }]
+                : []),
+              ...(repo.is_private ? [{ tag: 'private', tooltip: `Private repository` }] : []),
+              ...(showIssuesPRs
+                ? [
+                    {
+                      tag: `${repo.open_issues_count}/${repo.open_prs_count}`,
+                      tooltip: `Open issues: ${repo.open_issues_count}, Open pull requests: ${repo.open_prs_count}`,
+                    },
+                  ]
+                : []),
+              ...(showStars ? [{ tag: `${repo.stargazers_count} ★`, tooltip: `Stars: ${repo.stargazers_count}` }] : []),
             ]}
             actions={
               <ActionPanel>
