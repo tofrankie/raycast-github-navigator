@@ -5,6 +5,8 @@ import { sortRepos } from './repos';
 import type { Preferences, Repository } from './types';
 import { join } from 'node:path';
 
+const getSshUrl = (repo: Repository) => `git@github.com:${repo.full_name}.git`;
+
 const getActions = (repo: Repository) => {
   const base = repo.html_url;
   return [
@@ -198,6 +200,12 @@ export default function Command() {
                   content={repo.html_url}
                   icon={Icon.Link}
                   shortcut={{ modifiers: ['cmd'], key: 'c' }}
+                />
+                <Action.CopyToClipboard
+                  title="Copy SSH URL"
+                  content={getSshUrl(repo)}
+                  icon={Icon.Terminal}
+                  shortcut={{ modifiers: ['cmd', 'shift'], key: 'c' }}
                 />
               </ActionPanel>
             }
