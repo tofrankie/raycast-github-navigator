@@ -2,20 +2,43 @@
   "$schema": "https://www.raycast.com/schemas/extension.json",
   "name": "github-navigator",
   "title": "GitHub Navigator",
+  "type": "module",
   "description": "Navigate your GitHub projects",
   "icon": "icon.png",
   "author": "webpro",
-  "type": "module",
+  "license": "MIT",
   "categories": [
     "Developer Tools"
   ],
-  "license": "MIT",
+  "scripts": {
+    "build": "ray build",
+    "dev": "ray develop",
+    "lint": "npm run lint:eslint && npm run lint:raycast",
+    "lint:raycast": "ray lint --fix",
+    "lint:eslint": "eslint . --fix",
+    "publish": "npx @raycast/api@latest publish",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@raycast/api": "^1.104.23",
+    "@raycast/utils": "^2.2.7",
+    "open-in-browser-tab": "^0.0.2"
+  },
+  "devDependencies": {
+    "@raycast/eslint-config": "^2.2.0",
+    "@tofrankie/eslint": "^0.5.0",
+    "@types/node": "22.19.17",
+    "@types/react": "19.0.10",
+    "eslint": "^10.7.0",
+    "prettier": "^3.9.5",
+    "typescript": "^6.0.3"
+  },
   "commands": [
     {
       "name": "navigate-github",
+      "mode": "view",
       "title": "Navigate GitHub",
       "description": "Navigate your GitHub projects",
-      "mode": "view",
       "keywords": [
         "github"
       ],
@@ -35,6 +58,7 @@
           "required": true,
           "title": "Sort Repositories By",
           "description": "Choose the metric to sort repositories",
+          "default": "stargazers_count",
           "data": [
             {
               "title": "Stars",
@@ -52,8 +76,7 @@
               "title": "Recently Updated",
               "value": "updated_at"
             }
-          ],
-          "default": "stargazers_count"
+          ]
         },
         {
           "name": "showStars",
@@ -83,26 +106,5 @@
         }
       ]
     }
-  ],
-  "scripts": {
-    "build": "ray build",
-    "dev": "ray develop",
-    "fix-lint": "ray lint --fix",
-    "lint": "ray lint",
-    "publish": "npx @raycast/api@latest publish",
-    "typecheck": "tsc --noEmit"
-  },
-  "dependencies": {
-    "@raycast/api": "^1.104.16",
-    "@raycast/utils": "^2.2.4",
-    "open-in-browser-tab": "^0.0.2"
-  },
-  "devDependencies": {
-    "@raycast/eslint-config": "^2.1.1",
-    "@types/node": "^25.6.2",
-    "@types/react": "^19.2.14",
-    "eslint": "^10.3.0",
-    "prettier": "^3.8.3",
-    "typescript": "^6.0.3"
-  }
+  ]
 }

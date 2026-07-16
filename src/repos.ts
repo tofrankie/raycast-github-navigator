@@ -1,7 +1,7 @@
-import { getPreferenceValues } from '@raycast/api';
 import type { Repository } from './types';
+import { getPreferenceValues } from '@raycast/api';
 
-export const sortRepos = (repositories: Repository[] = []) => {
+export function sortRepos(repositories: Repository[] = []) {
   const repos = (repositories ?? []).filter(repo => repo.id);
   const { sortBy } = getPreferenceValues<Preferences.NavigateGithub>();
 
@@ -10,4 +10,4 @@ export const sortRepos = (repositories: Repository[] = []) => {
   }
 
   return repos.sort((a, b) => b[sortBy] - a[sortBy]);
-};
+}
