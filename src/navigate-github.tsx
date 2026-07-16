@@ -1,5 +1,5 @@
 import type { Repository } from './types';
-import { Action, ActionPanel, closeMainWindow, getPreferenceValues, Icon, List, open } from '@raycast/api';
+import { Action, ActionPanel, closeMainWindow, Color, getPreferenceValues, Icon, List, open } from '@raycast/api';
 import { useCachedPromise, useFrecencySorting } from '@raycast/utils';
 import { openInBrowserTab } from 'browser-tab-bridge';
 import { sortRepos } from './repos';
@@ -68,10 +68,10 @@ export default function Command() {
         return (
           <List.Item
             key={repo.full_name}
-            icon={{ source: Icon.Receipt, tintColor: '#59636e' }}
+            icon={{ source: Icon.Receipt, tintColor: Color.SecondaryText }}
             title={repo.name}
             subtitle={repo.description}
-            keywords={[repo.name, repo.full_name, repo.description ?? '']}
+            keywords={[repo.name, repo.full_name]}
             accessories={accessories}
             actions={
               <ActionPanel>
