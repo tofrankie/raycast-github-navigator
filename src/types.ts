@@ -1,17 +1,10 @@
-export interface Preferences {
-  personalAccessToken: string;
-  sortBy: 'stargazers_count' | 'open_issues_count' | 'open_prs_count';
-  showStars: boolean;
-  showIssuesPRs: boolean;
-  reuseTab: boolean;
-}
-
 export interface Repository {
   id: string;
   name: string;
   full_name: string;
   description?: string;
   html_url: string;
+  updated_at: string;
   is_fork: boolean;
   parent_full_name?: string;
   is_private: boolean;

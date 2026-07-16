@@ -47,6 +47,10 @@
             {
               "title": "Pull Requests",
               "value": "open_prs_count"
+            },
+            {
+              "title": "Recently Updated",
+              "value": "updated_at"
             }
           ],
           "default": "stargazers_count"

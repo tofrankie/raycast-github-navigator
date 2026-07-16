@@ -2,7 +2,7 @@ import { ActionPanel, Action, List, getPreferenceValues, closeMainWindow, open, 
 import { useCachedPromise, useFrecencySorting } from '@raycast/utils';
 import { openInBrowserTab } from 'open-in-browser-tab';
 import { sortRepos } from './repos';
-import type { Preferences, Repository } from './types';
+import type { Repository } from './types';
 import { join } from 'node:path';
 
 const getSshUrl = (repo: Repository) => `git@github.com:${repo.full_name}.git`;
@@ -30,6 +30,7 @@ const REPO_FIELDS = `
   nameWithOwner
   description
   url
+  updatedAt
   isFork
   isPrivate
   stargazerCount
@@ -40,18 +41,18 @@ const REPO_FIELDS = `
   parent { nameWithOwner }
 `;
 
-const USER_REPOS_QUERY = `query($cursor: String) {
+const USER_REPOS_QUERY = `query($cursor: String, $orderBy: RepositoryOrder) {
   viewer {
-    repositories(first: 100, after: $cursor, affiliations: [OWNER, COLLABORATOR]) {
+    repositories(first: 100, after: $cursor, affiliations: [OWNER, COLLABORATOR], orderBy: $orderBy) {
       pageInfo { hasNextPage endCursor }
       nodes { ${REPO_FIELDS} }
     }
   }
 }`;
 
-const ORG_REPOS_QUERY = `query($org: String!, $cursor: String) {
+const ORG_REPOS_QUERY = `query($org: String!, $cursor: String, $orderBy: RepositoryOrder) {
   organization(login: $org) {
-    repositories(first: 100, after: $cursor) {
+    repositories(first: 100, after: $cursor, orderBy: $orderBy) {
       pageInfo { hasNextPage endCursor }
       nodes { ${REPO_FIELDS} }
     }
@@ -76,6 +77,7 @@ function toRepo(node: Record<string, unknown>, viewerLogin: string): Repository 
     full_name: node.nameWithOwner as string,
     description: (node.description as string) || '',
     html_url: node.url as string,
+    updated_at: node.updatedAt as string,
     is_fork: node.isFork as boolean,
     parent_full_name: parentFullName ?? undefined,
     is_private: node.isPrivate as boolean,
@@ -85,6 +87,12 @@ function toRepo(node: Record<string, unknown>, viewerLogin: string): Repository 
     open_prs_count: (node.pullRequests as { totalCount: number }).totalCount,
   };
 }
+
+const getRepositoryOrderBy = (sortBy: Preferences.NavigateGithub['sortBy']) => {
+  if (sortBy !== 'updated_at') return undefined;
+
+  return { field: 'UPDATED_AT', direction: 'DESC' };
+};
 
 async function graphql(token: string, query: string, variables: Record<string, unknown> = {}) {
   const response = await fetch('https://api.github.com/graphql', {
@@ -98,9 +106,10 @@ async function graphql(token: string, query: string, variables: Record<string, u
   return json.data;
 }
 
-async function fetchAllRepos(token: string): Promise<Repository[]> {
+async function fetchAllRepos(token: string, sortBy: Preferences.NavigateGithub['sortBy']): Promise<Repository[]> {
   const seen = new Set<string>();
   const allRepos: Repository[] = [];
+  const orderBy = getRepositoryOrderBy(sortBy);
 
   const orgsData = await graphql(token, ORGS_QUERY);
   const viewerLogin: string = orgsData.viewer.login ?? '';
@@ -119,7 +128,7 @@ async function fetchAllRepos(token: string): Promise<Repository[]> {
   // Fetch user's own + collaborator repos
   let cursor: string | null = null;
   while (true) {
-    const data = await graphql(token, USER_REPOS_QUERY, { cursor });
+    const data = await graphql(token, USER_REPOS_QUERY, { cursor, orderBy });
     const { nodes, pageInfo } = data.viewer.repositories;
     addRepos(nodes);
     if (!pageInfo.hasNextPage) break;
@@ -130,7 +139,7 @@ async function fetchAllRepos(token: string): Promise<Repository[]> {
   for (const org of orgs) {
     cursor = null;
     while (true) {
-      const data = await graphql(token, ORG_REPOS_QUERY, { org, cursor });
+      const data = await graphql(token, ORG_REPOS_QUERY, { org, cursor, orderBy });
       const { nodes, pageInfo } = data.organization.repositories;
       addRepos(nodes);
       if (!pageInfo.hasNextPage) break;
@@ -142,9 +151,10 @@ async function fetchAllRepos(token: string): Promise<Repository[]> {
 }
 
 export default function Command() {
-  const { personalAccessToken, showStars, showIssuesPRs, reuseTab } = getPreferenceValues<Preferences>();
+  const { personalAccessToken, sortBy, showStars, showIssuesPRs, reuseTab } =
+    getPreferenceValues<Preferences.NavigateGithub>();
 
-  const { data, isLoading } = useCachedPromise(fetchAllRepos, [personalAccessToken], {
+  const { data, isLoading } = useCachedPromise(fetchAllRepos, [personalAccessToken, sortBy], {
     keepPreviousData: true,
   });
 
@@ -153,28 +163,62 @@ export default function Command() {
   return (
     <List isLoading={isLoading && !data?.length} searchBarPlaceholder="Search repositories..." throttle>
       {sortedData.map(repo => {
+        const accessories: List.Item.Accessory[] = [];
+        const updatedAt = new Date(repo.updated_at);
+
+        const infoList: string[] = [];
+
+        if (showStars) {
+          infoList.push(`Stars: ${repo.stargazers_count}`);
+        }
+
+        if (showIssuesPRs) {
+          infoList.push(`Open issues: ${repo.open_issues_count}`);
+          infoList.push(`Open pull requests: ${repo.open_prs_count}`);
+        }
+
+        // info
+        accessories.unshift({
+          icon: Icon.Info,
+          tooltip: infoList.join('\n'),
+        });
+
+        // organization
+        if (!repo.is_own_repo) {
+          accessories.unshift({
+            icon: Icon.Building,
+            tooltip: `Organization: ${repo.full_name.split('/')[0]}`,
+          });
+        }
+
+        if (repo.is_fork) {
+          accessories.unshift({
+            icon: Icon.Anchor,
+            tooltip: `Forked from ${repo.parent_full_name ?? 'unknown upstream'}`,
+          });
+        }
+
+        if (repo.is_private) {
+          accessories.unshift({
+            icon: Icon.Lock,
+            tooltip: `Private repository`,
+          });
+        }
+
+        // updated_at
+        accessories.unshift({
+          date: updatedAt,
+          tooltip: `Updated at ${updatedAt.toLocaleString()}`,
+        });
+
         return (
           <List.Item
             key={repo.full_name}
-            icon={{ source: 'icons/repo.svg', tintColor: '#59636e' }}
-            title={repo.is_own_repo ? repo.name : repo.full_name}
+            icon={{ source: Icon.Receipt, tintColor: '#59636e' }}
+            title={repo.name}
             subtitle={repo.description}
-            keywords={[repo.name, repo.full_name]}
-            accessories={[
-              ...(repo.is_fork
-                ? [{ tag: 'fork', tooltip: `Forked from ${repo.parent_full_name ?? 'unknown upstream'}` }]
-                : []),
-              ...(repo.is_private ? [{ tag: 'private', tooltip: `Private repository` }] : []),
-              ...(showIssuesPRs
-                ? [
-                    {
-                      tag: `${repo.open_issues_count}/${repo.open_prs_count}`,
-                      tooltip: `Open issues: ${repo.open_issues_count}, Open pull requests: ${repo.open_prs_count}`,
-                    },
-                  ]
-                : []),
-              ...(showStars ? [{ tag: `${repo.stargazers_count} ★`, tooltip: `Stars: ${repo.stargazers_count}` }] : []),
-            ]}
+            keywords={[repo.name, repo.full_name, repo.description ?? '']}
+            accessories={accessories}
             actions={
               <ActionPanel>
                 {getActions(repo).map((action, index) => {
