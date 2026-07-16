@@ -66,8 +66,8 @@ required — see [browser-tab-bridge][5] to set this up.
 Assign a global hotkey to open this command directly:
 Raycast Settings → Extensions → GitHub Navigator → Navigate GitHub → Hotkey (e.g. `Hyper Key` + `N`).
 
-[1]: assets/screenshot-1.png
-[2]: https://raycast.com
+[1]: metadata/screenshot-1.png
+[2]: https://raycast.com/?via=73820f
 [3]: https://nodejs.org
 [4]: https://github.com/settings/tokens
 [5]: https://github.com/webpro/browser-tab-bridge
