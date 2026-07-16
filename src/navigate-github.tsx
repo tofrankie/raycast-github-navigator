@@ -1,5 +1,5 @@
 import type { Repository } from './types';
-import { Action, ActionPanel, closeMainWindow, getPreferenceValues, Icon, List, open, Keyboard } from '@raycast/api';
+import { Action, ActionPanel, closeMainWindow, getPreferenceValues, Icon, List, open } from '@raycast/api';
 import { useCachedPromise, useFrecencySorting } from '@raycast/utils';
 import { openInBrowserTab } from 'browser-tab-bridge';
 import { sortRepos } from './repos';
@@ -97,13 +97,13 @@ export default function Command() {
                   title="Copy Repo URL"
                   content={repo.html_url}
                   icon={Icon.Link}
-                  shortcut={{ modifiers: ['cmd'], key: 'c' }}
+                  shortcut={{ modifiers: ['cmd', 'shift'], key: '.' }}
                 />
                 <Action.CopyToClipboard
                   title="Copy SSH URL"
                   content={getSshUrl(repo)}
                   icon={Icon.Terminal}
-                  shortcut={Keyboard.Shortcut.Common.Copy}
+                  shortcut={{ modifiers: ['cmd', 'shift'], key: ',' }}
                 />
               </ActionPanel>
             }
