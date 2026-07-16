@@ -5,7 +5,7 @@
   "type": "module",
   "description": "Navigate your GitHub projects",
   "icon": "icon.png",
-  "author": "webpro",
+  "author": "tofrankie",
   "license": "MIT",
   "categories": [
     "Developer Tools"
@@ -58,8 +58,12 @@
           "required": true,
           "title": "Sort Repositories By",
           "description": "Choose the metric to sort repositories",
-          "default": "stargazers_count",
+          "default": "updated_at",
           "data": [
+            {
+              "title": "Recently Updated",
+              "value": "updated_at"
+            },
             {
               "title": "Stars",
               "value": "stargazers_count"
@@ -71,29 +75,8 @@
             {
               "title": "Pull Requests",
               "value": "open_prs_count"
-            },
-            {
-              "title": "Recently Updated",
-              "value": "updated_at"
             }
           ]
-        },
-        {
-          "name": "showStars",
-          "type": "checkbox",
-          "required": false,
-          "title": "Labels",
-          "label": "Stars",
-          "description": "Show star count label",
-          "default": true
-        },
-        {
-          "name": "showIssuesPRs",
-          "type": "checkbox",
-          "required": false,
-          "label": "Issues/PRs",
-          "description": "Show open issues/PRs label",
-          "default": true
         },
         {
           "name": "reuseTab",

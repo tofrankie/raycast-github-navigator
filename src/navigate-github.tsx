@@ -5,8 +5,7 @@ import { openInBrowserTab } from 'browser-tab-bridge';
 import { sortRepos } from './repos';
 
 export default function Command() {
-  const { personalAccessToken, sortBy, showStars, showIssuesPRs, reuseTab } =
-    getPreferenceValues<Preferences.NavigateGithub>();
+  const { personalAccessToken, sortBy, reuseTab } = getPreferenceValues<Preferences.NavigateGithub>();
 
   const { data, isLoading } = useCachedPromise(fetchAllRepos, [personalAccessToken, sortBy], {
     keepPreviousData: true,
@@ -18,20 +17,13 @@ export default function Command() {
     <List isLoading={isLoading && !data?.length} searchBarPlaceholder="Search repositories..." throttle>
       {sortedData.map(repo => {
         const accessories: List.Item.Accessory[] = [];
-        const updatedAt = new Date(repo.updated_at);
-
-        const infoList: string[] = [];
-
-        if (showStars) {
-          infoList.push(`Stars: ${repo.stargazers_count}`);
-        }
-
-        if (showIssuesPRs) {
-          infoList.push(`Open issues: ${repo.open_issues_count}`);
-          infoList.push(`Open pull requests: ${repo.open_prs_count}`);
-        }
 
         // info
+        const infoList = [
+          `Stars: ${repo.stargazers_count}`,
+          `Open issues: ${repo.open_issues_count}`,
+          `Open pull requests: ${repo.open_prs_count}`,
+        ];
         accessories.unshift({
           icon: Icon.Info,
           tooltip: infoList.join('\n'),
@@ -45,6 +37,7 @@ export default function Command() {
           });
         }
 
+        // fork
         if (repo.is_fork) {
           accessories.unshift({
             icon: Icon.Anchor,
@@ -52,6 +45,7 @@ export default function Command() {
           });
         }
 
+        // private
         if (repo.is_private) {
           accessories.unshift({
             icon: Icon.Lock,
@@ -60,6 +54,7 @@ export default function Command() {
         }
 
         // updated_at
+        const updatedAt = new Date(repo.updated_at);
         accessories.unshift({
           date: updatedAt,
           tooltip: `Updated at ${updatedAt.toLocaleString()}`,
