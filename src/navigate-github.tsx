@@ -1,8 +1,7 @@
 import type { Repository } from './types';
-import { join } from 'node:path';
-import { Action, ActionPanel, closeMainWindow, getPreferenceValues, Icon, List, open } from '@raycast/api';
+import { Action, ActionPanel, closeMainWindow, getPreferenceValues, Icon, List, open, Keyboard } from '@raycast/api';
 import { useCachedPromise, useFrecencySorting } from '@raycast/utils';
-import { openInBrowserTab } from 'open-in-browser-tab';
+import { openInBrowserTab } from 'browser-tab-bridge';
 import { sortRepos } from './repos';
 
 export default function Command() {
@@ -104,7 +103,7 @@ export default function Command() {
                   title="Copy SSH URL"
                   content={getSshUrl(repo)}
                   icon={Icon.Terminal}
-                  shortcut={{ modifiers: ['cmd', 'shift'], key: 'c' }}
+                  shortcut={Keyboard.Shortcut.Common.Copy}
                 />
               </ActionPanel>
             }
@@ -164,13 +163,13 @@ function getActions(repo: Repository) {
     ...(repo.is_fork && repo.parent_full_name
       ? [{ title: 'Open Upstream Repository', url: `https://github.com/${repo.parent_full_name}`, icon: Icon.Globe }]
       : []),
-    { title: 'Issues', url: join(base, 'issues'), icon: Icon.Bug },
-    { title: 'Pull requests', url: join(base, 'pulls'), icon: Icon.ArrowNe },
-    { title: 'Actions', url: join(base, 'actions'), icon: Icon.Bolt },
-    { title: 'Releases', url: join(base, 'releases'), icon: Icon.Tag },
-    { title: 'Insights', url: join(base, 'pulse'), icon: Icon.LineChart },
-    { title: 'Settings', url: join(base, 'settings'), icon: Icon.Gear },
-    { title: 'Dependents', url: join(base, 'network', 'dependents'), icon: Icon.Network },
+    { title: 'Issues', url: `${base}/issues`, icon: Icon.Bug },
+    { title: 'Pull requests', url: `${base}/pulls`, icon: Icon.ArrowNe },
+    { title: 'Actions', url: `${base}/actions`, icon: Icon.Bolt },
+    { title: 'Releases', url: `${base}/releases`, icon: Icon.Tag },
+    { title: 'Insights', url: `${base}/pulse`, icon: Icon.LineChart },
+    { title: 'Settings', url: `${base}/settings`, icon: Icon.Gear },
+    { title: 'Dependents', url: `${base}/network/dependents`, icon: Icon.Network },
   ];
 }
 
