@@ -6,6 +6,9 @@
   "description": "Browse your GitHub repositories",
   "icon": "icon.png",
   "author": "tofrankie",
+  "pastContributors": [
+    "webpro"
+  ],
   "license": "MIT",
   "categories": [
     "Developer Tools"

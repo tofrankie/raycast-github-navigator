@@ -66,7 +66,7 @@ export default function BrowserRepository() {
         const updatedAt = new Date(repo.updated_at);
         accessories.unshift({
           date: updatedAt,
-          tooltip: `Updated at ${updatedAt.toLocaleString()}`,
+          tooltip: `Last updated: ${updatedAt.toLocaleString()}`,
         });
 
         return (
