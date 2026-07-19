@@ -17,6 +17,9 @@ import { openInBrowserTab } from 'browser-tab-bridge';
 import { fetchAllRepos } from './graph';
 import { sortRepos } from './repo';
 
+const isMac = process.platform === 'darwin';
+// const isWindows = process.platform === 'win32';
+
 export default function BrowserRepository() {
   const { personalAccessToken, sort, reuseBrowserTab, frecencySortingEnabled } =
     getPreferenceValues<Preferences.BrowserRepository>();
@@ -125,7 +128,8 @@ export default function BrowserRepository() {
                         },
                       }}
                       onAction={async () => {
-                        await (reuseBrowserTab ? openInBrowserTab(action.url) : open(action.url));
+                        const shouldReuseBrowserTab = reuseBrowserTab && isMac;
+                        await (shouldReuseBrowserTab ? openInBrowserTab(action.url) : open(action.url));
                         visitItem(repo);
                         closeMainWindow();
                       }}
