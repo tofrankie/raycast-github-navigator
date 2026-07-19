@@ -7,7 +7,7 @@ Navigate your GitHub repositories from Raycast — personal, collaborator, and o
 ## Features
 
 - All your repos: personal (owner), collaborator, and organization repositories
-- Sort by recent updates, stars, open issues, or pull requests
+- Sort by last updated, stars, open issues, or pull requests
 - Frecency sorting: repos you use most float to the top over time
 - Quick actions: open repo, issues, PRs, actions, releases, settings, or dependents (⌘1–⌘7)
 - Reuse browser tab: optionally focus an existing tab instead of opening a new one
@@ -47,7 +47,7 @@ You'll be prompted to enter the token when you first run the command.
 
 | Setting           | Description                                                        | Default          |
 | ----------------- | ------------------------------------------------------------------ | ---------------- |
-| Sort by           | Sort repos by recent updates, stars, open issues, or pull requests | Recently Updated |
+| Sort by           | Sort repos by last updated, stars, open issues, or pull requests | Last Updated |
 | Reuse browser tab | Focus existing tab instead of opening new                          | false            |
 
 ## Firefox / Zen

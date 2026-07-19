@@ -3,11 +3,11 @@ import { getPreferenceValues } from '@raycast/api';
 
 export function sortRepos(repositories: Repository[] = []) {
   const repos = (repositories ?? []).filter(repo => repo.id);
-  const { sortBy } = getPreferenceValues<Preferences.NavigateGithub>();
+  const { sort } = getPreferenceValues<Preferences.NavigateGithub>();
 
-  if (sortBy === 'updated_at') {
+  if (sort === 'updated_at') {
     return repos.sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime());
   }
 
-  return repos.sort((a, b) => b[sortBy] - a[sortBy]);
+  return repos.sort((a, b) => b[sort] - a[sort]);
 }

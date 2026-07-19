@@ -5,9 +5,9 @@ import { openInBrowserTab } from 'browser-tab-bridge';
 import { sortRepos } from './repos';
 
 export default function Command() {
-  const { personalAccessToken, sortBy, reuseTab } = getPreferenceValues<Preferences.NavigateGithub>();
+  const { personalAccessToken, sort, reuseTab } = getPreferenceValues<Preferences.NavigateGithub>();
 
-  const { data, isLoading } = useCachedPromise(fetchAllRepos, [personalAccessToken, sortBy], {
+  const { data, isLoading } = useCachedPromise(fetchAllRepos, [personalAccessToken, sort], {
     keepPreviousData: true,
   });
 
@@ -129,8 +129,8 @@ function toRepo(node: Record<string, unknown>, viewerLogin: string): Repository 
   };
 }
 
-function getRepositoryOrderBy(sortBy: Preferences.NavigateGithub['sortBy']) {
-  if (sortBy !== 'updated_at') return undefined;
+function getRepoSortOrder(sort: Preferences.NavigateGithub['sort']) {
+  if (sort !== 'updated_at') return undefined;
 
   return { field: 'UPDATED_AT', direction: 'DESC' };
 }
@@ -212,10 +212,10 @@ const ORGS_QUERY = `query {
   }
 }`;
 
-async function fetchAllRepos(token: string, sortBy: Preferences.NavigateGithub['sortBy']): Promise<Repository[]> {
+async function fetchAllRepos(token: string, sort: Preferences.NavigateGithub['sort']): Promise<Repository[]> {
   const seen = new Set<string>();
-  const allRepos: Repository[] = [];
-  const orderBy = getRepositoryOrderBy(sortBy);
+  const repos: Repository[] = [];
+  const repoSortOrder = getRepoSortOrder(sort);
 
   const orgsData = await graphql(token, ORGS_QUERY);
   const viewerLogin: string = orgsData.viewer.login ?? '';
@@ -226,7 +226,7 @@ async function fetchAllRepos(token: string, sortBy: Preferences.NavigateGithub['
       const repo = toRepo(node, viewerLogin);
       if (!seen.has(repo.full_name)) {
         seen.add(repo.full_name);
-        allRepos.push(repo);
+        repos.push(repo);
       }
     }
   }
@@ -234,7 +234,7 @@ async function fetchAllRepos(token: string, sortBy: Preferences.NavigateGithub['
   // Fetch user's own + collaborator repos
   let cursor: string | null = null;
   while (true) {
-    const data = await graphql(token, USER_REPOS_QUERY, { cursor, orderBy });
+    const data = await graphql(token, USER_REPOS_QUERY, { cursor, orderBy: repoSortOrder });
     const { nodes, pageInfo } = data.viewer.repositories;
     addRepos(nodes);
     if (!pageInfo.hasNextPage) break;
@@ -245,7 +245,7 @@ async function fetchAllRepos(token: string, sortBy: Preferences.NavigateGithub['
   for (const org of orgs) {
     cursor = null;
     while (true) {
-      const data = await graphql(token, ORG_REPOS_QUERY, { org, cursor, orderBy });
+      const data = await graphql(token, ORG_REPOS_QUERY, { org, cursor, orderBy: repoSortOrder });
       const { nodes, pageInfo } = data.organization.repositories;
       addRepos(nodes);
       if (!pageInfo.hasNextPage) break;
@@ -253,5 +253,5 @@ async function fetchAllRepos(token: string, sortBy: Preferences.NavigateGithub['
     }
   }
 
-  return allRepos;
+  return repos;
 }

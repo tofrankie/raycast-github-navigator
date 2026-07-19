@@ -53,15 +53,15 @@
           "placeholder": "Enter your personal access token"
         },
         {
-          "name": "sortBy",
+          "name": "sort",
           "type": "dropdown",
           "required": true,
-          "title": "Sort Repositories By",
+          "title": "Sort",
           "description": "Choose the metric to sort repositories",
           "default": "updated_at",
           "data": [
             {
-              "title": "Recently Updated",
+              "title": "Last Updated",
               "value": "updated_at"
             },
             {
