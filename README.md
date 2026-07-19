@@ -63,8 +63,11 @@ required — see [browser-tab-bridge][5] to set this up.
 
 ## Tip
 
-Assign a global hotkey to open this command directly:
-Raycast Settings → Extensions → GitHub Navigator → Browse Repositories → Hotkey (e.g. `Hyper Key` + `N`).
+Assign a global hotkey to open this command directly: Raycast Settings → Extensions → GitHub Navigator → Browse Repositories → Hotkey (e.g. `Hyper Key` + `N`).
+
+## License
+
+MIT License © [Frankie](https://github.com/tofrankie)
 
 [1]: metadata/screenshot-1.png
 [2]: https://raycast.com/?via=73820f
