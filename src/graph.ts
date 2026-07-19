@@ -1,7 +1,7 @@
-import { Octokit } from '@octokit/core';
 import type { Repository } from './types';
+import { Octokit } from '@octokit/core';
 
-type RepoNode = {
+interface RepoNode {
   databaseId: number | string;
   name: string;
   nameWithOwner: string;
@@ -15,18 +15,18 @@ type RepoNode = {
   pullRequests: { totalCount: number };
   owner: { login: string };
   parent?: { nameWithOwner?: string | null } | null;
-};
+}
 
-type OrgsQueryResult = {
+interface OrgsQueryResult {
   viewer: {
     login: string;
     organizations: {
       nodes: { login: string }[];
     };
   };
-};
+}
 
-type ReposQueryResult = {
+interface ReposQueryResult {
   viewer?: {
     repositories: {
       nodes: RepoNode[];
@@ -39,12 +39,12 @@ type ReposQueryResult = {
       pageInfo: { hasNextPage: boolean; endCursor: string | null };
     };
   };
-};
+}
 
-type RepoConnection = {
+interface RepoConnection {
   nodes: RepoNode[];
   pageInfo: { hasNextPage: boolean; endCursor: string | null };
-};
+}
 
 function createOctokit(token: string) {
   return new Octokit({ auth: token });
@@ -70,7 +70,7 @@ function transformRepo(node: RepoNode, viewerLogin: string): Repository {
   };
 }
 
-function getRepoSortOrder(sort: Preferences.NavigateGithub['sort']) {
+function getRepoSortOrder(sort: Preferences.BrowserRepository['sort']) {
   if (sort !== 'updated_at') return undefined;
 
   return { field: 'UPDATED_AT', direction: 'DESC' };
@@ -120,7 +120,7 @@ const ORGS_QUERY = `query {
   }
 }`;
 
-export async function fetchAllRepos(token: string, sort: Preferences.NavigateGithub['sort']): Promise<Repository[]> {
+export async function fetchAllRepos(token: string, sort: Preferences.BrowserRepository['sort']): Promise<Repository[]> {
   const octokit = createOctokit(token);
   const seen = new Set<string>();
   const repos: Repository[] = [];

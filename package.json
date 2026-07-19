@@ -3,7 +3,7 @@
   "name": "github-navigator",
   "title": "GitHub Navigator",
   "type": "module",
-  "description": "Navigate your GitHub projects",
+  "description": "Browse your GitHub repositories",
   "icon": "icon.png",
   "author": "tofrankie",
   "license": "MIT",
@@ -36,10 +36,10 @@
   },
   "commands": [
     {
-      "name": "navigate-github",
+      "name": "browser-repository",
       "mode": "view",
-      "title": "Navigate GitHub",
-      "description": "Navigate your GitHub projects",
+      "title": "Browse Repositories",
+      "description": "Browse your GitHub repositories",
       "keywords": [
         "github"
       ],
@@ -49,7 +49,7 @@
           "type": "password",
           "required": true,
           "title": "GitHub Token",
-          "description": "Your GitHub's personal access token. Required scopes: notifications repo project read:org read:user.",
+          "description": "Your GitHub personal access token. Required scopes: notifications, repo, project, read:org, and read:user.",
           "link": "https://github.com/settings/tokens",
           "placeholder": "Enter your personal access token"
         },
@@ -57,8 +57,8 @@
           "name": "sort",
           "type": "dropdown",
           "required": true,
-          "title": "Sort",
-          "description": "Choose the metric to sort repositories",
+          "title": "Sorting",
+          "description": "Choose the initial sorting method for repositories",
           "default": "updated_at",
           "data": [
             {
@@ -80,12 +80,21 @@
           ]
         },
         {
-          "name": "reuseTab",
+          "name": "frecencySortingEnabled",
           "type": "checkbox",
-          "required": false,
-          "title": "Browser",
+          "required": true,
+          "title": "Frecency Sorting",
+          "label": "Enable frecency sorting",
+          "description": "After the initial sort, apply frecency sorting based on how often and how recently you open repositories.",
+          "default": true
+        },
+        {
+          "name": "reuseBrowserTab",
+          "type": "checkbox",
+          "required": true,
+          "title": "Browser Tab Reuse",
           "label": "Reuse existing browser tab",
-          "description": "Focus an existing tab if the URL is already open, instead of opening a new tab",
+          "description": "Focus an existing browser tab instead of opening a new one",
           "default": false
         }
       ]

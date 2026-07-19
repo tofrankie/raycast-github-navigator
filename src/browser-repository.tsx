@@ -1,32 +1,30 @@
+import type { Keyboard } from '@raycast/api';
 import type { Repository } from './types';
-import {
-  Action,
-  ActionPanel,
-  closeMainWindow,
-  Color,
-  getPreferenceValues,
-  Icon,
-  Keyboard,
-  List,
-  open,
-} from '@raycast/api';
+import { Action, ActionPanel, closeMainWindow, Color, getPreferenceValues, Icon, List, open } from '@raycast/api';
 import { useCachedPromise, useFrecencySorting } from '@raycast/utils';
 import { openInBrowserTab } from 'browser-tab-bridge';
 import { fetchAllRepos } from './graph';
-import { sortRepos } from './repos';
+import { sortRepos } from './repo';
 
-export default function Command() {
-  const { personalAccessToken, sort, reuseTab } = getPreferenceValues<Preferences.NavigateGithub>();
+export default function BrowserRepository() {
+  const { personalAccessToken, sort, reuseBrowserTab, frecencySortingEnabled } =
+    getPreferenceValues<Preferences.BrowserRepository>();
 
   const { data, isLoading } = useCachedPromise(fetchAllRepos, [personalAccessToken, sort], {
     keepPreviousData: true,
   });
 
-  const { data: sortedData, visitItem } = useFrecencySorting<Repository>(sortRepos(data), { key: repo => repo.id });
+  const sortedRepos = sortRepos(data);
+
+  const { data: frecencySortedRepos, visitItem } = useFrecencySorting<Repository>(sortedRepos, {
+    key: repo => repo.id,
+  });
+
+  const displayRepos = frecencySortingEnabled ? frecencySortedRepos : sortedRepos;
 
   return (
     <List isLoading={isLoading && !data?.length} searchBarPlaceholder="Search repositories..." throttle>
-      {sortedData.map(repo => {
+      {displayRepos.map(repo => {
         const accessories: List.Item.Accessory[] = [];
 
         // info
@@ -92,7 +90,7 @@ export default function Command() {
                         key: String(index + 1) as Keyboard.KeyEquivalent,
                       }}
                       onAction={async () => {
-                        await (reuseTab ? openInBrowserTab(action.url) : open(action.url));
+                        await (reuseBrowserTab ? openInBrowserTab(action.url) : open(action.url));
                         visitItem(repo);
                         closeMainWindow();
                       }}
@@ -126,16 +124,16 @@ export default function Command() {
     const base = repo.html_url;
     return [
       { title: 'Open Repository', url: base, icon: Icon.Globe },
-      ...(repo.is_fork && repo.parent_full_name
-        ? [{ title: 'Open Upstream Repository', url: `https://github.com/${repo.parent_full_name}`, icon: Icon.Globe }]
-        : []),
       { title: 'Issues', url: `${base}/issues`, icon: Icon.Bug },
-      { title: 'Pull requests', url: `${base}/pulls`, icon: Icon.ArrowNe },
+      { title: 'Pull Requests', url: `${base}/pulls`, icon: Icon.ArrowNe },
       { title: 'Actions', url: `${base}/actions`, icon: Icon.Bolt },
       { title: 'Releases', url: `${base}/releases`, icon: Icon.Tag },
       { title: 'Insights', url: `${base}/pulse`, icon: Icon.LineChart },
       { title: 'Settings', url: `${base}/settings`, icon: Icon.Gear },
       { title: 'Dependents', url: `${base}/network/dependents`, icon: Icon.Network },
+      ...(repo.is_fork && repo.parent_full_name
+        ? [{ title: 'Open Upstream Repository', url: `https://github.com/${repo.parent_full_name}`, icon: Icon.Globe }]
+        : []),
     ];
   }
 }

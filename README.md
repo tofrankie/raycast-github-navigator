@@ -1,41 +1,41 @@
 # GitHub Navigator
 
-Navigate your GitHub repositories from Raycast — personal, collaborator, and organization repos in one place with smart sorting.
-
 ![GitHub Navigator screenshot][1]
+
+Browse your GitHub repositories in Raycast: personal, collaborator, and organization repositories in one place, with flexible sorting.
 
 ## Features
 
-- All your repos: personal (owner), collaborator, and organization repositories
-- Sort by last updated, stars, open issues, or pull requests
-- Frecency sorting: repos you use most float to the top over time
-- Quick actions: open repo, issues, PRs, actions, releases, settings, or dependents (⌘1–⌘7)
-- Reuse browser tab: optionally focus an existing tab instead of opening a new one
+- **Unified repository list**: personal (owner), collaborator, and organization repositories in one place
+- **Flexible sorting**: sort by last updated, stars, open issues, or pull requests
+- **Optional frecency sorting**: repositories you open more often and more recently can move higher in the list
+- **Quick actions**: open a repository, issues, pull requests, actions, releases, insights, settings, and dependents; forked repositories also include an upstream action (⌘1 ~ ⌘9)
+- **Browser tab reuse**: optionally focus an existing browser tab instead of opening a new one
 
 ## Install
 
 Requires [Raycast][2] and [Node.js][3] 20+.
 
-```sh
-git clone https://github.com/tofrankie/raycast-github-navigator.git
-cd raycast-github-navigator
-npm install
-npm run dev
+```bash
+$ git clone https://github.com/tofrankie/raycast-github-navigator.git
+$ cd raycast-github-navigator
+$ npm install
+$ npm run dev
 ```
 
-This registers the extension in Raycast. After the initial setup, the extension persists — you don't need to keep the dev server running.
+This registers the extension in Raycast. After the initial setup, the extension stays available, so you do not need to keep the dev server running.
 
 To update later:
 
-```sh
-git pull
-npm install
-npm run build
+```bash
+$ git pull
+$ npm install
+$ npm run build
 ```
 
 ## GitHub Token
 
-The extension requires a [personal access token][4] (classic) with these scopes:
+The extension requires a [classic personal access token][4] with these scopes:
 
 - `repo` — access repository data
 - `read:org` — list organization repos
@@ -43,12 +43,13 @@ The extension requires a [personal access token][4] (classic) with these scopes:
 
 You'll be prompted to enter the token when you first run the command.
 
-## Configuration
+## Command Preferences
 
-| Setting           | Description                                                        | Default          |
-| ----------------- | ------------------------------------------------------------------ | ---------------- |
-| Sort by           | Sort repos by last updated, stars, open issues, or pull requests | Last Updated |
-| Reuse browser tab | Focus existing tab instead of opening new                          | false            |
+| Setting           | Description                                                                                              | Default      |
+| ----------------- | -------------------------------------------------------------------------------------------------------- | ------------ |
+| Sorting           | Choose the initial sorting method for repositories                                                       | Last Updated |
+| Frecency Sorting  | After the initial sort, apply frecency sorting based on how often and how recently you open repositories | On           |
+| Browser Tab Reuse | Focus an existing browser tab instead of opening a new one                                               | Off          |
 
 ## Firefox / Zen
 
@@ -58,10 +59,10 @@ from the active tab work out of the box for Chrome and Safari (via AppleScript).
 For Firefox and Zen, a companion browser extension and native messaging host are
 required — see [browser-tab-bridge][5] to set this up.
 
-## Tip: Hotkey
+## Tip
 
 Assign a global hotkey to open this command directly:
-Raycast Settings → Extensions → GitHub Navigator → Navigate GitHub → Hotkey (e.g. `Hyper Key` + `N`).
+Raycast Settings → Extensions → GitHub Navigator → Browse Repositories → Hotkey (e.g. `Hyper Key` + `N`).
 
 [1]: metadata/screenshot-1.png
 [2]: https://raycast.com/?via=73820f
