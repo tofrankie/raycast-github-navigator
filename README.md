@@ -2,6 +2,8 @@
 
 ![GitHub Navigator screenshot][1]
 
+> Based on [webpro/raycast-github-navigator](https://github.com/webpro/raycast-github-navigator). Thanks to [webpro](https://github.com/webpro) for the original work.
+
 Browse your GitHub repositories in Raycast: personal, collaborator, and organization repositories in one place, with flexible sorting.
 
 ## Features
