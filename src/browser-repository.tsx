@@ -99,6 +99,7 @@ export default function BrowserRepository() {
 
         return (
           <List.Item
+            id={repo.full_name}
             key={repo.full_name}
             icon={{ source: Icon.Receipt, tintColor: Color.SecondaryText }}
             title={repo.name}
@@ -114,8 +115,14 @@ export default function BrowserRepository() {
                       title={action.title}
                       icon={action.icon}
                       shortcut={{
-                        modifiers: ['cmd'],
-                        key: String(index + 1) as Keyboard.KeyEquivalent,
+                        macOS: {
+                          modifiers: ['cmd'],
+                          key: String(index + 1) as Keyboard.KeyEquivalent,
+                        },
+                        Windows: {
+                          modifiers: ['ctrl'],
+                          key: String(index + 1) as Keyboard.KeyEquivalent,
+                        },
                       }}
                       onAction={async () => {
                         await (reuseBrowserTab ? openInBrowserTab(action.url) : open(action.url));
@@ -129,13 +136,13 @@ export default function BrowserRepository() {
                   title="Copy Repository URL"
                   content={repo.html_url}
                   icon={Icon.Link}
-                  shortcut={{ modifiers: ['cmd', 'shift'], key: '.' }}
+                  shortcut={Keyboard.Shortcut.Common.CopyName}
                 />
                 <Action.CopyToClipboard
                   title="Copy SSH URL"
                   content={getSshUrl(repo)}
                   icon={Icon.Terminal}
-                  shortcut={{ modifiers: ['cmd', 'shift'], key: ',' }}
+                  shortcut={Keyboard.Shortcut.Common.CopyPath}
                 />
                 <Action
                   title="Refresh"

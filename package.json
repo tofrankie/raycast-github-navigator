@@ -18,11 +18,10 @@
     "Windows"
   ],
   "scripts": {
-    "build": "ray build",
     "dev": "ray develop",
-    "lint": "npm run lint:eslint && npm run lint:raycast",
-    "lint:raycast": "ray lint --fix",
-    "lint:eslint": "eslint . --fix",
+    "build": "ray build",
+    "lint": "ray lint",
+    "fix-lint": "ray lint --fix",
     "publish": "npx @raycast/api@latest publish",
     "typecheck": "tsc --noEmit"
   },
