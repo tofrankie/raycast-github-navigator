@@ -126,7 +126,7 @@ export default function BrowserRepository() {
                   );
                 })}
                 <Action.CopyToClipboard
-                  title="Copy Repo URL"
+                  title="Copy Repository URL"
                   content={repo.html_url}
                   icon={Icon.Link}
                   shortcut={{ modifiers: ['cmd', 'shift'], key: '.' }}
@@ -157,14 +157,14 @@ export default function BrowserRepository() {
   function getActions(repo: Repository) {
     const base = repo.html_url;
     return [
-      { title: 'Open Repository', url: base, icon: Icon.Globe },
-      { title: 'Issues', url: `${base}/issues`, icon: Icon.Bug },
-      { title: 'Pull Requests', url: `${base}/pulls`, icon: Icon.ArrowNe },
-      { title: 'Actions', url: `${base}/actions`, icon: Icon.Bolt },
-      { title: 'Releases', url: `${base}/releases`, icon: Icon.Tag },
-      { title: 'Insights', url: `${base}/pulse`, icon: Icon.LineChart },
-      { title: 'Settings', url: `${base}/settings`, icon: Icon.Gear },
-      { title: 'Dependents', url: `${base}/network/dependents`, icon: Icon.Network },
+      { title: 'Open in Browser', url: base, icon: Icon.Globe },
+      { title: 'Open Issues', url: `${base}/issues`, icon: Icon.Circle },
+      { title: 'Open Pull Requests', url: `${base}/pulls`, icon: Icon.ArrowNe },
+      { title: 'Open Actions', url: `${base}/actions`, icon: Icon.Bolt },
+      { title: 'Open Releases', url: `${base}/releases`, icon: Icon.Tag },
+      { title: 'Open Insights', url: `${base}/pulse`, icon: Icon.LineChart },
+      { title: 'Open Settings', url: `${base}/settings`, icon: Icon.Gear },
+      { title: 'Open Dependents', url: `${base}/network/dependents`, icon: Icon.Network },
       ...(repo.is_fork && repo.parent_full_name
         ? [{ title: 'Open Upstream Repository', url: `https://github.com/${repo.parent_full_name}`, icon: Icon.Globe }]
         : []),
