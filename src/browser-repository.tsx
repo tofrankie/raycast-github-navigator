@@ -1,6 +1,17 @@
-import type { Keyboard } from '@raycast/api';
 import type { Repository } from './types';
-import { Action, ActionPanel, closeMainWindow, Color, getPreferenceValues, Icon, List, open } from '@raycast/api';
+import {
+  Action,
+  ActionPanel,
+  closeMainWindow,
+  Color,
+  getPreferenceValues,
+  Icon,
+  Keyboard,
+  List,
+  open,
+  showToast,
+  Toast,
+} from '@raycast/api';
 import { useCachedPromise, useFrecencySorting } from '@raycast/utils';
 import { openInBrowserTab } from 'browser-tab-bridge';
 import { fetchAllRepos } from './graph';
@@ -10,7 +21,7 @@ export default function BrowserRepository() {
   const { personalAccessToken, sort, reuseBrowserTab, frecencySortingEnabled } =
     getPreferenceValues<Preferences.BrowserRepository>();
 
-  const { data, isLoading } = useCachedPromise(fetchAllRepos, [personalAccessToken, sort], {
+  const { data, isLoading, revalidate } = useCachedPromise(fetchAllRepos, [personalAccessToken, sort], {
     keepPreviousData: true,
   });
 
@@ -21,6 +32,23 @@ export default function BrowserRepository() {
   });
 
   const displayRepos = frecencySortingEnabled ? frecencySortedRepos : sortedRepos;
+
+  async function handleRefresh() {
+    const toast = await showToast({
+      style: Toast.Style.Animated,
+      title: 'Refreshing',
+    });
+
+    try {
+      await revalidate();
+      toast.style = Toast.Style.Success;
+      toast.title = 'Refreshed';
+    } catch (error) {
+      toast.style = Toast.Style.Failure;
+      toast.title = 'Failed to refresh';
+      toast.message = error instanceof Error ? error.message : String(error);
+    }
+  }
 
   return (
     <List isLoading={isLoading && !data?.length} searchBarPlaceholder="Search repositories..." throttle>
@@ -108,6 +136,12 @@ export default function BrowserRepository() {
                   content={getSshUrl(repo)}
                   icon={Icon.Terminal}
                   shortcut={{ modifiers: ['cmd', 'shift'], key: ',' }}
+                />
+                <Action
+                  title="Refresh"
+                  icon={Icon.ArrowClockwise}
+                  shortcut={Keyboard.Shortcut.Common.Refresh}
+                  onAction={handleRefresh}
                 />
               </ActionPanel>
             }
