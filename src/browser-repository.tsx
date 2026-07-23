@@ -161,6 +161,7 @@ export default function BrowserRepository() {
       })}
     </List>
   );
+
   function getSshUrl(repo: Repository) {
     return `git@github.com:${repo.full_name}.git`;
   }

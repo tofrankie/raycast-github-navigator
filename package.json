@@ -10,6 +10,7 @@
     "webpro"
   ],
   "license": "MIT",
+  "homepage": "https://github.com/tofrankie/raycast-github-navigator",
   "categories": [
     "Developer Tools"
   ],
@@ -55,7 +56,7 @@
           "type": "password",
           "required": true,
           "title": "GitHub Token",
-          "description": "Your GitHub personal access token. Required scopes: notifications, repo, project, read:org, and read:user.",
+          "description": "Your GitHub personal access token (classic). Required scopes: notifications, repo, project, read:org, and read:user.",
           "link": "https://github.com/settings/tokens",
           "placeholder": "Enter your personal access token"
         },
