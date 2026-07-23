@@ -13,7 +13,6 @@ import {
   Toast,
 } from '@raycast/api';
 import { useCachedPromise, useFrecencySorting } from '@raycast/utils';
-import { openInBrowserTab } from 'browser-tab-bridge';
 import { fetchAllRepos } from './graph';
 import { sortRepos } from './repo';
 
@@ -129,7 +128,12 @@ export default function BrowserRepository() {
                       }}
                       onAction={async () => {
                         const shouldReuseBrowserTab = reuseBrowserTab && isMac;
-                        await (shouldReuseBrowserTab ? openInBrowserTab(action.url) : open(action.url));
+                        if (shouldReuseBrowserTab) {
+                          const { openInBrowserTab } = await import('browser-tab-bridge');
+                          await openInBrowserTab(action.url);
+                        } else {
+                          await open(action.url);
+                        }
                         visitItem(repo);
                         closeMainWindow();
                       }}
