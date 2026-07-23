@@ -22,6 +22,7 @@ interface OrgsQueryResult {
     login: string;
     organizations: {
       nodes: { login: string }[];
+      pageInfo: { hasNextPage: boolean; endCursor: string | null };
     };
   };
 }
@@ -111,10 +112,11 @@ const ORG_REPOS_QUERY = `query($org: String!, $cursor: String, $orderBy: Reposit
   }
 }`;
 
-const ORGS_QUERY = `query {
+const ORGS_QUERY = `query($cursor: String) {
   viewer {
     login
-    organizations(first: 100) {
+    organizations(first: 100, after: $cursor) {
+      pageInfo { hasNextPage endCursor }
       nodes { login }
     }
   }
@@ -126,9 +128,16 @@ export async function fetchAllRepos(token: string, sort: Preferences.BrowserRepo
   const repos: Repository[] = [];
   const repoSortOrder = getRepoSortOrder(sort);
 
-  const orgsData = await octokit.graphql<OrgsQueryResult>(ORGS_QUERY);
-  const viewerLogin: string = orgsData.viewer.login ?? '';
-  const orgs: string[] = orgsData.viewer.organizations.nodes.map(n => n.login);
+  const orgs: string[] = [];
+  let viewerLogin = '';
+  let orgsCursor: string | null = null;
+  while (true) {
+    const orgsData: OrgsQueryResult = await octokit.graphql<OrgsQueryResult>(ORGS_QUERY, { cursor: orgsCursor });
+    viewerLogin = orgsData.viewer.login ?? '';
+    orgs.push(...orgsData.viewer.organizations.nodes.map(n => n.login));
+    if (!orgsData.viewer.organizations.pageInfo.hasNextPage) break;
+    orgsCursor = orgsData.viewer.organizations.pageInfo.endCursor;
+  }
 
   function addRepos(nodes: RepoNode[]) {
     for (const node of nodes) {
