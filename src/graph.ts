@@ -10,6 +10,7 @@ interface RepoNode {
   updatedAt: string;
   isFork: boolean;
   isPrivate: boolean;
+  isArchived: boolean;
   stargazerCount: number;
   issues: { totalCount: number };
   pullRequests: { totalCount: number };
@@ -64,6 +65,7 @@ function transformRepo(node: RepoNode, viewerLogin: string): Repository {
     is_fork: node.isFork,
     parent_full_name: parentFullName ?? undefined,
     is_private: node.isPrivate,
+    is_archived: node.isArchived,
     is_own_repo: Boolean(viewerLogin && ownerLogin === viewerLogin),
     stargazers_count: node.stargazerCount,
     open_issues_count: node.issues.totalCount,
@@ -86,6 +88,7 @@ const REPO_FIELDS = `
   updatedAt
   isFork
   isPrivate
+  isArchived
   stargazerCount
   forkCount
   issues(states: OPEN) { totalCount }
