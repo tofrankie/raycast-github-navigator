@@ -100,7 +100,12 @@ export default function BrowserRepository() {
       searchBarPlaceholder="Search repositories..."
       throttle
       searchBarAccessory={
-        <List.Dropdown tooltip="Filter repositories" storeValue onChange={value => setFilter(value as FilterOption)}>
+        <List.Dropdown
+          tooltip="Filter repositories"
+          throttle
+          storeValue
+          onChange={value => setFilter(value as FilterOption)}
+        >
           <List.Dropdown.Item title="All" value="all" />
           <List.Dropdown.Item title="Public" value="public" />
           <List.Dropdown.Item title="Private" value="private" />
