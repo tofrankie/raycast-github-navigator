@@ -13,14 +13,17 @@ import {
   Toast,
 } from '@raycast/api';
 import { useCachedPromise, useFrecencySorting } from '@raycast/utils';
-import { Fragment } from 'react';
+import { Fragment, useState } from 'react';
 import { fetchAllRepos } from './graph';
 import { sortRepos } from './repo';
 
 const isMac = process.platform === 'darwin';
 // const isWindows = process.platform === 'win32';
 
+type FilterOption = 'all' | 'public' | 'private' | 'sources' | 'forks' | 'archived' | 'organization';
+
 export default function BrowserRepository() {
+  const [filter, setFilter] = useState<FilterOption>('all');
   const { personalAccessToken, sort, reuseBrowserTab, frecencySortingEnabled } =
     getPreferenceValues<Preferences.BrowserRepository>();
 
@@ -51,6 +54,27 @@ export default function BrowserRepository() {
       }
     : null;
 
+  const filterRepos = (repos: Repository[], filter: FilterOption) => {
+    switch (filter) {
+      case 'all':
+        return repos;
+      case 'public':
+        return repos.filter(r => !r.is_private);
+      case 'private':
+        return repos.filter(r => r.is_private);
+      case 'sources':
+        return repos.filter(r => !r.is_fork);
+      case 'forks':
+        return repos.filter(r => r.is_fork);
+      case 'archived':
+        return repos.filter(r => r.is_archived);
+      case 'organization':
+        return repos.filter(r => !r.is_own_repo);
+      default:
+        return repos;
+    }
+  };
+
   async function handleRefresh() {
     const toast = await showToast({
       style: Toast.Style.Animated,
@@ -71,7 +95,22 @@ export default function BrowserRepository() {
   const ListItemWrapper = repoStats ? List.Section : Fragment;
 
   return (
-    <List isLoading={isLoading && !allRepos?.length} searchBarPlaceholder="Search repositories..." throttle>
+    <List
+      isLoading={isLoading && !allRepos?.length}
+      searchBarPlaceholder="Search repositories..."
+      throttle
+      searchBarAccessory={
+        <List.Dropdown tooltip="Filter repositories" storeValue onChange={value => setFilter(value as FilterOption)}>
+          <List.Dropdown.Item title="All" value="all" />
+          <List.Dropdown.Item title="Public" value="public" />
+          <List.Dropdown.Item title="Private" value="private" />
+          <List.Dropdown.Item title="Sources" value="sources" />
+          <List.Dropdown.Item title="Forks" value="forks" />
+          <List.Dropdown.Item title="Archived" value="archived" />
+          <List.Dropdown.Item title="Organization" value="organization" />
+        </List.Dropdown>
+      }
+    >
       <ListItemWrapper
         title="Stats"
         subtitle={
@@ -80,7 +119,7 @@ export default function BrowserRepository() {
             : undefined
         }
       >
-        {displayRepos.map(repo => {
+        {filterRepos(displayRepos, filter).map(repo => {
           const accessories: List.Item.Accessory[] = [];
 
           // info
